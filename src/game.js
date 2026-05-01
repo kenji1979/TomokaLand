@@ -1,7 +1,8 @@
 const canvas = document.getElementById("game");
 const ctx = canvas.getContext("2d");
 
-const photoInput = document.getElementById("photoInput");
+const photoRightInput = document.getElementById("photoRightInput");
+const photoLeftInput = document.getElementById("photoLeftInput");
 const startButton = document.getElementById("startButton");
 const pauseButton = document.getElementById("pauseButton");
 const restartButton = document.getElementById("restartButton");
@@ -27,7 +28,10 @@ let worldWidth = 4200;
 const keys = new Set();
 const touches = new Set();
 
-const defaultHeroPhoto = createDefaultPhoto();
+const defaultHeroPhotos = {
+  right: createDefaultPhoto("right"),
+  left: createDefaultPhoto("left"),
+};
 
 const hero = {
   x: 80,
@@ -44,8 +48,8 @@ const hero = {
   breathCooldown: 0,
   powerTimer: 0,
   lives: 3,
-  photo: defaultHeroPhoto,
-  photoScale: 1.18,
+  photos: defaultHeroPhotos,
+  photoScale: 1.22,
 };
 
 let running = false;
@@ -72,7 +76,9 @@ let level = {
   checkpoints: [80, 1450, 2800],
 };
 
-function createDefaultPhoto() {
+function createDefaultPhoto(side = "right") {
+  const eyeShift = side === "right" ? 8 : -8;
+  const hairSweep = side === "right" ? "M58 86c12-43 42-60 75-50 27 8 41 31 34 65-24-18-58-19-109-15z" : "M52 101c-7-34 7-57 34-65 33-10 63 7 75 50-51-4-85-3-109 15z";
   const img = new Image();
   const svg = `
     <svg xmlns="http://www.w3.org/2000/svg" width="220" height="220" viewBox="0 0 220 220">
@@ -84,9 +90,9 @@ function createDefaultPhoto() {
       </defs>
       <rect width="220" height="220" rx="42" fill="url(#bg)"/>
       <circle cx="110" cy="96" r="58" fill="#ffd8b8"/>
-      <path d="M54 86c8-43 37-60 70-52 30 7 47 28 45 62-31-14-64-14-115-10z" fill="#543829"/>
-      <circle cx="88" cy="98" r="8" fill="#38231a"/>
-      <circle cx="132" cy="98" r="8" fill="#38231a"/>
+      <path d="${hairSweep}" fill="#543829"/>
+      <circle cx="${88 + eyeShift}" cy="98" r="8" fill="#38231a"/>
+      <circle cx="${132 + eyeShift}" cy="98" r="8" fill="#38231a"/>
       <path d="M88 126c14 18 31 18 45 0" fill="none" stroke="#d45d75" stroke-width="8" stroke-linecap="round"/>
       <text x="110" y="194" text-anchor="middle" font-size="28" font-family="sans-serif" fill="#ff6fb0" font-weight="700">ともか</text>
     </svg>`;
@@ -920,47 +926,46 @@ function drawHero() {
 
   ctx.save();
   ctx.translate(hero.x + hero.w / 2, hero.y);
-  if (hero.facing < 0) {
-    ctx.scale(-1, 1);
-  }
+  const facing = hero.facing >= 0 ? 1 : -1;
+  const activePhoto = hero.facing >= 0 ? hero.photos.right : hero.photos.left;
 
   ctx.fillStyle = "#ffd2ae";
   ctx.beginPath();
-  ctx.ellipse(0, 55, 22, 13, 0, 0, Math.PI * 2);
+  ctx.ellipse(facing * 2, 55, 22, 13, facing * 0.08, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = hero.powerTimer > 0 ? "#ff7aa9" : "#55b8ff";
-  roundRect(-24, 53, 48, 42, 17);
+  roundRect(-24 + facing * 1, 53, 48, 42, 17);
   ctx.fill();
   ctx.fillStyle = "rgba(255,255,255,0.36)";
-  roundRect(-15, 60, 30, 15, 8);
+  roundRect(-14 + facing * 1, 60, 28, 15, 8);
   ctx.fill();
   ctx.fillStyle = "#254d76";
-  ctx.fillRect(-19, 90, 14, 11);
-  ctx.fillRect(5, 90, 14, 11);
+  ctx.fillRect(-19 + facing * 2, 90, 14, 11);
+  ctx.fillRect(5 + facing * 2, 90, 14, 11);
   ctx.strokeStyle = "#ffd2ae";
   ctx.lineWidth = 9;
   ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.moveTo(-22, 63);
-  ctx.lineTo(-40, 75);
-  ctx.moveTo(22, 63);
-  ctx.lineTo(40, 75);
+  ctx.moveTo(-21 + facing * 2, 63);
+  ctx.lineTo(-39 + facing * 4, 75);
+  ctx.moveTo(21 + facing * 2, 63);
+  ctx.lineTo(39 + facing * 4, 75);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.ellipse(0, 28, 36, 37, 0, 0, Math.PI * 2);
+  ctx.ellipse(facing * 2, 28, 36, 37, facing * 0.05, 0, Math.PI * 2);
   ctx.fillStyle = "#ffd2ae";
   ctx.fill();
   ctx.save();
   ctx.beginPath();
-  ctx.ellipse(0, 28, 33, 34, 0, 0, Math.PI * 2);
+  ctx.ellipse(facing * 2, 28, 33, 34, facing * 0.05, 0, Math.PI * 2);
   ctx.clip();
-  if (hero.photo.complete && hero.photo.naturalWidth > 0) {
-    drawPhotoCover(hero.photo, -33, -6, 66, 68, 1.18, 0, -0.05);
+  if (activePhoto.complete && activePhoto.naturalWidth > 0) {
+    drawPhotoCover(activePhoto, -31 + facing * 2, -6, 66, 68, hero.photoScale, facing * 0.04, -0.05);
   } else {
     ctx.fillStyle = "#ffd8b8";
-    ctx.fillRect(-33, -6, 66, 68);
+    ctx.fillRect(-31 + facing * 2, -6, 66, 68);
   }
   ctx.restore();
   ctx.strokeStyle = "#fff";
@@ -978,7 +983,7 @@ function drawHero() {
   if (hero.breathCooldown > 0.28) {
     ctx.fillStyle = "#30401d";
     ctx.font = "700 18px sans-serif";
-    ctx.fillText("ぷはー", 58, 33);
+    ctx.fillText("ぷはー", facing * 58, 33);
   }
   ctx.restore();
 }
@@ -1080,21 +1085,25 @@ function playMusic(dt) {
   musicTimer = 0.26;
 }
 
-photoInput.addEventListener("change", (event) => {
+rightPhotoInput.addEventListener("change", (event) => loadHeroPhoto(event, "right"));
+leftPhotoInput.addEventListener("change", (event) => loadHeroPhoto(event, "left"));
+
+function loadHeroPhoto(event, side) {
   const file = event.target.files?.[0];
   if (!file) return;
   const reader = new FileReader();
   reader.onload = () => {
     const img = new Image();
     img.onload = () => {
-      hero.photo = img;
-      showMessage("写真を読み込みました。ともかの顔としてそのまま使います。");
+      hero.photos[side] = img;
+      const label = side === "right" ? "右向き" : "左向き";
+      showMessage(`${label}の顔写真を読み込みました。移動方向に合わせて使います。`);
       draw();
     };
     img.src = reader.result;
   };
   reader.readAsDataURL(file);
-});
+}
 
 startButton.addEventListener("click", () => {
   if (!running) {
