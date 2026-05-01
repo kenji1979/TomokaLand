@@ -32,8 +32,8 @@ const defaultHeroPhoto = createDefaultPhoto();
 const hero = {
   x: 80,
   y: FLOOR - 96,
-  w: 58,
-  h: 96,
+  w: 62,
+  h: 104,
   vx: 0,
   vy: 0,
   speed: 330,
@@ -45,6 +45,7 @@ const hero = {
   powerTimer: 0,
   lives: 3,
   photo: defaultHeroPhoto,
+  photoScale: 1.18,
 };
 
 let running = false;
@@ -923,39 +924,50 @@ function drawHero() {
     ctx.scale(-1, 1);
   }
 
+  ctx.fillStyle = "#ffd2ae";
+  ctx.beginPath();
+  ctx.ellipse(0, 55, 22, 13, 0, 0, Math.PI * 2);
+  ctx.fill();
+
   ctx.fillStyle = hero.powerTimer > 0 ? "#ff7aa9" : "#55b8ff";
-  roundRect(-23, 50, 46, 45, 16);
+  roundRect(-24, 53, 48, 42, 17);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.36)";
+  roundRect(-15, 60, 30, 15, 8);
   ctx.fill();
   ctx.fillStyle = "#254d76";
-  ctx.fillRect(-18, 90, 14, 10);
-  ctx.fillRect(4, 90, 14, 10);
+  ctx.fillRect(-19, 90, 14, 11);
+  ctx.fillRect(5, 90, 14, 11);
   ctx.strokeStyle = "#ffd2ae";
   ctx.lineWidth = 9;
   ctx.lineCap = "round";
   ctx.beginPath();
-  ctx.moveTo(-22, 62);
-  ctx.lineTo(-39, 76);
-  ctx.moveTo(22, 62);
-  ctx.lineTo(39, 76);
+  ctx.moveTo(-22, 63);
+  ctx.lineTo(-40, 75);
+  ctx.moveTo(22, 63);
+  ctx.lineTo(40, 75);
   ctx.stroke();
 
   ctx.beginPath();
-  ctx.arc(0, 31, 34, 0, Math.PI * 2);
+  ctx.ellipse(0, 28, 36, 37, 0, 0, Math.PI * 2);
   ctx.fillStyle = "#ffd2ae";
   ctx.fill();
   ctx.save();
   ctx.beginPath();
-  ctx.arc(0, 31, 32, 0, Math.PI * 2);
+  ctx.ellipse(0, 28, 33, 34, 0, 0, Math.PI * 2);
   ctx.clip();
   if (hero.photo.complete && hero.photo.naturalWidth > 0) {
-    ctx.drawImage(hero.photo, -32, -1, 64, 64);
+    drawPhotoCover(hero.photo, -33, -6, 66, 68, 1.18, 0, -0.05);
   } else {
     ctx.fillStyle = "#ffd8b8";
-    ctx.fillRect(-32, -1, 64, 64);
+    ctx.fillRect(-33, -6, 66, 68);
   }
   ctx.restore();
   ctx.strokeStyle = "#fff";
-  ctx.lineWidth = 4;
+  ctx.lineWidth = 5;
+  ctx.stroke();
+  ctx.strokeStyle = "rgba(84, 136, 255, 0.4)";
+  ctx.lineWidth = 2;
   ctx.stroke();
 
   ctx.fillStyle = "rgba(30,30,30,0.8)";
@@ -969,6 +981,23 @@ function drawHero() {
     ctx.fillText("ぷはー", 58, 33);
   }
   ctx.restore();
+}
+
+function drawPhotoCover(image, dx, dy, dw, dh, zoom = 1, offsetX = 0, offsetY = 0) {
+  const imageRatio = image.naturalWidth / image.naturalHeight;
+  const frameRatio = dw / dh;
+  let sw = image.naturalWidth;
+  let sh = image.naturalHeight;
+  if (imageRatio > frameRatio) {
+    sw = sh * frameRatio;
+  } else {
+    sh = sw / frameRatio;
+  }
+  sw /= zoom;
+  sh /= zoom;
+  const sx = clamp((image.naturalWidth - sw) / 2 + image.naturalWidth * offsetX, 0, image.naturalWidth - sw);
+  const sy = clamp((image.naturalHeight - sh) / 2 + image.naturalHeight * offsetY, 0, image.naturalHeight - sh);
+  ctx.drawImage(image, sx, sy, sw, sh, dx, dy, dw, dh);
 }
 
 function roundRect(x, y, w, h, r) {
