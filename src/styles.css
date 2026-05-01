@@ -1,0 +1,249 @@
+:root {
+  color-scheme: light;
+  --sky: #8fe2ff;
+  --grass: #55c94f;
+  --grass-dark: #2e9d35;
+  --panel: rgba(255, 255, 255, 0.82);
+  --ink: #28404b;
+  --accent: #ffcc35;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  min-height: 100%;
+  overflow: hidden;
+  background: linear-gradient(#7bdfff 0%, #c8f5ff 70%, #abec8d 70%);
+  color: var(--ink);
+  font-family: "Hiragino Maru Gothic ProN", "Yu Gothic", system-ui, sans-serif;
+  touch-action: none;
+  user-select: none;
+}
+
+.game-shell {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+}
+
+.game-frame {
+  position: relative;
+  width: min(100vw, 1280px);
+  aspect-ratio: 16 / 9;
+  max-height: 100vh;
+  border: 6px solid #fff8c8;
+  border-radius: 24px;
+  overflow: hidden;
+  background: var(--sky);
+  box-shadow: 0 16px 40px rgba(31, 84, 108, 0.28);
+}
+
+#game {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background: var(--sky);
+}
+
+.hud {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.badge,
+.photo-button,
+.menu-button {
+  min-width: 86px;
+  padding: 8px 12px;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: var(--panel);
+  box-shadow: 0 5px 0 rgba(42, 114, 69, 0.16);
+  color: var(--ink);
+  font-size: clamp(12px, 1.8vw, 19px);
+  font-weight: 900;
+  line-height: 1;
+  text-align: center;
+}
+
+.photo-button,
+.menu-button {
+  pointer-events: auto;
+  cursor: pointer;
+}
+
+.photo-button:active,
+.menu-button:active,
+.control-button:active {
+  transform: translateY(3px);
+  box-shadow: 0 2px 0 rgba(42, 114, 69, 0.2);
+}
+
+#photoRightInput,
+#photoLeftInput {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.top-actions {
+  position: absolute;
+  top: 76px;
+  right: 14px;
+  display: flex;
+  gap: 8px;
+}
+
+.menu-button {
+  min-width: auto;
+  border: 0;
+  font-size: clamp(13px, 1.8vw, 17px);
+}
+
+.message {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  width: min(82%, 720px);
+  transform: translate(-50%, -50%);
+  padding: 18px 22px;
+  border: 5px solid #fff;
+  border-radius: 28px;
+  background: rgba(255, 252, 220, 0.92);
+  color: var(--ink);
+  font-size: clamp(18px, 3.1vw, 34px);
+  font-weight: 900;
+  text-align: center;
+  text-shadow: 0 2px #fff;
+  box-shadow: 0 12px 0 rgba(58, 135, 72, 0.18);
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.message small {
+  display: block;
+  margin-top: 10px;
+  font-size: 0.58em;
+  font-weight: 800;
+}
+
+.message.is-quiet {
+  opacity: 0;
+  transform: translate(-50%, -46%);
+}
+
+.hidden {
+  display: none;
+}
+
+.controls {
+  position: absolute;
+  inset: auto 14px 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 16px;
+  pointer-events: none;
+}
+
+.control-group {
+  display: flex;
+  gap: 12px;
+  pointer-events: auto;
+}
+
+.control-button {
+  width: clamp(64px, 12vw, 112px);
+  height: clamp(64px, 12vw, 112px);
+  border: 5px solid #fff;
+  border-radius: 28px;
+  background: rgba(255, 242, 120, 0.82);
+  color: #315566;
+  box-shadow: 0 8px 0 rgba(70, 115, 45, 0.28);
+  font: 900 clamp(20px, 4vw, 35px) / 1 system-ui, sans-serif;
+  touch-action: none;
+}
+
+.control-button.action {
+  background: rgba(109, 240, 106, 0.86);
+}
+
+.control-button.breath {
+  width: clamp(80px, 15vw, 132px);
+  background: rgba(169, 255, 75, 0.9);
+  font-size: clamp(16px, 3vw, 26px);
+}
+
+.hint {
+  position: absolute;
+  left: 16px;
+  bottom: 120px;
+  max-width: min(54%, 520px);
+  padding: 9px 13px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.7);
+  font-size: clamp(12px, 1.8vw, 18px);
+  font-weight: 800;
+}
+
+@media (max-width: 900px) {
+  .hud {
+    top: 8px;
+    left: 8px;
+    right: 8px;
+    justify-content: flex-start;
+  }
+
+  .badge,
+  .photo-button {
+    min-width: auto;
+    padding: 6px 9px;
+  }
+
+  .top-actions {
+    top: auto;
+    right: 10px;
+    bottom: 104px;
+  }
+
+  .menu-button {
+    padding: 7px 10px;
+  }
+
+  .hint {
+    display: none;
+  }
+}
+
+@media (max-aspect-ratio: 4 / 3) {
+  .game-frame {
+    width: 100vw;
+    height: 100vh;
+    aspect-ratio: auto;
+    border-radius: 0;
+    border-width: 0;
+  }
+
+  .hint {
+    bottom: 102px;
+    max-width: 60%;
+  }
+}
