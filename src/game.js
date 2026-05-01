@@ -1085,8 +1085,8 @@ function playMusic(dt) {
   musicTimer = 0.26;
 }
 
-rightPhotoInput.addEventListener("change", (event) => loadHeroPhoto(event, "right"));
-leftPhotoInput.addEventListener("change", (event) => loadHeroPhoto(event, "left"));
+photoRightInput.addEventListener("change", (event) => loadHeroPhoto(event, "right"));
+photoLeftInput.addEventListener("change", (event) => loadHeroPhoto(event, "left"));
 
 function loadHeroPhoto(event, side) {
   const file = event.target.files?.[0];
@@ -1100,7 +1100,13 @@ function loadHeroPhoto(event, side) {
       showMessage(`${label}の顔写真を読み込みました。移動方向に合わせて使います。`);
       draw();
     };
+    img.onerror = () => {
+      showMessage("写真を読み込めませんでした。別の画像で試してください。");
+    };
     img.src = reader.result;
+  };
+  reader.onerror = () => {
+    showMessage("写真を開けませんでした。別の画像で試してください。");
   };
   reader.readAsDataURL(file);
 }
